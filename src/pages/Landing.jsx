@@ -8,6 +8,7 @@ const Landing = () => {
   const [textToTranslate, setTextToTranslate] = useState('');
   const [translatedText, setTranslatedText] = useState('');
   const [count, setCount] = useState(0);
+  const [detectedLanguage, setDetectedLanguage] = useState('');
 
   const handleLanguageClick = (language) => {
     setSelectedLanguage(language);
@@ -21,6 +22,26 @@ const Landing = () => {
     const text = event.target.value;
     setTextToTranslate(text);
     setCount(text.length);
+  };
+
+  const detectLanguage = () => {
+    if (setTextToTranslate.lenght > 0) {
+      fetch(`https://api.mymemory.translated.net/get?q=${textToTranslate}&langpair=|en`)
+      .then(response => response.json())
+      .then(data => {
+        if (data && data.responseData && data.responseData.lang) {
+          setDetectedLanguage(data.responseData.lang);
+        } else {
+          setDetectedLanguage('Error al detectar el idioma');
+        }
+      })
+      .catch(error => {
+        console.error('Error al detectar el idioma:', error);
+        setDetectedLanguage('Error al detectar el idioma');
+      });
+    } else {
+      setDetectedLanguage('Introduce un texto para detectar el idioma');
+    }
   };
 
   const handleTranslate = () => {
@@ -84,8 +105,8 @@ const Landing = () => {
               </button>
 
               <button
-                className={`landing__text--container landing__text ${selectedLanguage === 'sp' ? 'selected' : ''}`}
-                onClick={() => handleLanguageClick('sp')}
+                className={`landing__text--container landing__text ${selectedLanguage === 'es' ? 'selected' : ''}`}
+                onClick={() => handleLanguageClick('es')}
               >
                 <div>Spanish</div>
               </button>
@@ -165,8 +186,8 @@ const Landing = () => {
               </button>
 
               <button
-                className={`landing__text--container landing__text ${selectedTranslate === 'sp' ? 'selected' : ''}`}
-                onClick={() => handleTranslateClick('sp')}
+                className={`landing__text--container landing__text ${selectedTranslate === 'es' ? 'selected' : ''}`}
+                onClick={() => handleTranslateClick('es')}
               >
                 <div>Spanish</div>
               </button>
