@@ -3,17 +3,11 @@ import '../styles/landing.css'
 
 const Landing = () => {
 
-  const [selectedLanguage, setSelectedLanguage] = useState(null);
-
-  const [selectedTranslate, setSelectedTranslate] = useState(null);
-
+  const [selectedLanguage, setSelectedLanguage] = useState('');
+  const [selectedTranslate, setSelectedTranslate] = useState('');
+  const [textToTranslate, setTextToTranslate] = useState('');
+  const [translatedText, setTranslatedText] = useState('');
   const [count, setCount] = useState(0);
-
-  const [textTranslate, setTextTranslate] = useState('');
-
-  const insertText = () => {
-    setTextTranslate(textTranslate + "Hola mundo");
-  };
 
   const handleLanguageClick = (language) => {
     setSelectedLanguage(language);
@@ -21,11 +15,36 @@ const Landing = () => {
 
   const handleTranslateClick = (language) => {
     setSelectedTranslate(language);
-  }
+  };
 
   const handleInputChange = (event) => {
-      setCount(event.target.value.length);
+    const text = event.target.value;
+    setTextToTranslate(text);
+    setCount(text.length);
   };
+
+  const handleTranslate = () => {
+    if (selectedLanguage && selectedTranslate && textToTranslate) {
+      const langpair = `${selectedLanguage}|${selectedTranslate}`;
+      fetch(`https://api.mymemory.translated.net/get?q=${textToTranslate}&langpair=${langpair}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data && data.responseData && data.responseData.translatedText) {
+            setTranslatedText(data.responseData.translatedText);
+          } else {
+            setTranslatedText('Error en la traducción');
+          }
+        })
+        .catch(error => {
+          console.error('Error al traducir:', error);
+          setTranslatedText('Error en la traducción');
+        });
+    } else {
+      setTranslatedText('Por favor selecciona los idiomas y escribe el texto.');
+    }
+  };
+  
+
     
   return (
     <div className='landing'>
@@ -52,21 +71,21 @@ const Landing = () => {
                 Detect Language
               </button>
               <button
-                className={`landing__text--container landing__text ${selectedLanguage === 'english' ? 'selected' : ''}`}
-                onClick={() => handleLanguageClick('english')}
+                className={`landing__text--container landing__text ${selectedLanguage === 'en' ? 'selected' : ''}`}
+                onClick={() => handleLanguageClick('en')}
               >
                 English
               </button>
               <button
-                className={`landing__text--container landing__text ${selectedLanguage === 'french' ? 'selected' : ''}`}
-                onClick={() => handleLanguageClick('french')}
+                className={`landing__text--container landing__text ${selectedLanguage === 'fr' ? 'selected' : ''}`}
+                onClick={() => handleLanguageClick('fr')}
               >
                 French
               </button>
 
               <button
-                className={`landing__text--container landing__text ${selectedLanguage === 'spanish' ? 'selected' : ''}`}
-                onClick={() => handleLanguageClick('spanish')}
+                className={`landing__text--container landing__text ${selectedLanguage === 'sp' ? 'selected' : ''}`}
+                onClick={() => handleLanguageClick('sp')}
               >
                 <div>Spanish</div>
               </button>
@@ -84,7 +103,7 @@ const Landing = () => {
             </div>
 
             <div className="input__uno">
-              <textarea className="phrase__container" maxLength="500" name="" id="" onChange={handleInputChange}></textarea>
+              <textarea className="phrase__container" maxLength="500" value={textToTranslate} id="" onChange={handleInputChange} placeholder='Ingresar el texto a traducir'></textarea>
             </div>
 
             <div className="count__letters">
@@ -110,7 +129,7 @@ const Landing = () => {
                 </button>
             </div>
 
-              <button className="container__uno-translate general__buttons translate" onClick={insertText}>
+              <button className="container__uno-translate general__buttons translate" onClick={handleTranslate}>
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M6 20H18" stroke="#F9FAFB" stroke-width="2"/>
                   <path d="M9 12H15" stroke="#F9FAFB" stroke-width="2"/>
@@ -121,35 +140,33 @@ const Landing = () => {
 
           </div>
 
-            
-
         </div>
 
         {/* Modulo dos */}
 
         <div className="landing__container-dos">
 
-
           <div className="container-dos--text">
 
             <div className='container__language general__text conteiner__modulo--dos'>
            
               <button
-                className={`landing__text--container landing__text ${selectedTranslate === 'english' ? 'selected' : ''}`}
-                onClick={() => handleTranslateClick('english')}
+                className={`landing__text--container landing__text ${selectedTranslate === 'en' ? 'selected' : ''}`}
+                onClick={() => handleTranslateClick('en')}
               >
                 English
               </button>
+
               <button
-                className={`landing__text--container landing__text ${selectedTranslate === 'french' ? 'selected' : ''}`}
-                onClick={() => handleTranslateClick('french')}
+                className={`landing__text--container landing__text ${selectedTranslate === 'fr' ? 'selected' : ''}`}
+                onClick={() => handleTranslateClick('fr')}
               >
                 French
               </button>
 
               <button
-                className={`landing__text--container landing__text ${selectedTranslate === 'spanish' ? 'selected' : ''}`}
-                onClick={() => handleTranslateClick('spanish')}
+                className={`landing__text--container landing__text ${selectedTranslate === 'sp' ? 'selected' : ''}`}
+                onClick={() => handleTranslateClick('sp')}
               >
                 <div>Spanish</div>
               </button>
@@ -174,10 +191,8 @@ const Landing = () => {
           </div>
 
           <div className="input__dos">
-            <textarea className="phrase__container" maxLength="501" name="" id="miTextarea" value={textTranslate} onChange={(e) => {
-              setTextTranslate(e.target.value);
-            }}
-          />
+            <p className="phrase__container">{translatedText}</p>
+            
           </div>
 
           <div className="buttons__container-dos general__buttons">
